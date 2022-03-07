@@ -8,8 +8,10 @@ package bookstore
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
+	migrations "github.com/c0de4un/go-bookstore/core/database/migrations"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -63,10 +65,26 @@ func LoadDatabase(path string) (*Database, error) {
 	db.login = dbXML.Login
 	db.password = dbXML.Password
 
+	if len(db.login) < 1 {
+		return db, errors.New("Database::LoadDatabase: invalid config. Check xml")
+	}
+
+	fmt.Printf("\n Database:\n name='%s'\n login='%s' \n", db.name, db.login)
+
 	return db, nil
 }
 
+func (instance *Database) RunMigration(migration migrations.IMigration) error {
+	fmt.Printf("\n Database::RunMigration: '%d' \n", migration.GetID())
+
+	return migration.Up(instance.db)
+}
+
 func (instance *Database) Connect() error {
+	if len(instance.login) < 1 {
+		return errors.New("Database::Connect: invalid config. Check xml")
+	}
+
 	src := fmt.Sprintf("%s:%s@/%s", instance.login, instance.password, instance.name)
 	db, err := sql.Open("mysql", src)
 	if err != nil {
