@@ -6,6 +6,13 @@ package bookstore
 // IMPORTS
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+import (
+	"database/sql"
+	"fmt"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // STRUCTS
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -16,6 +23,7 @@ type Database struct {
 	port     int
 	login    string
 	password string
+	db       *sql.DB
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -56,6 +64,21 @@ func LoadDatabase(path string) (*Database, error) {
 	db.password = dbXML.Password
 
 	return db, nil
+}
+
+func (instance *Database) Connect() error {
+	src := fmt.Sprintf("%s:%s@/%s", instance.login, instance.password, instance.name)
+	db, err := sql.Open("mysql", src)
+	if err != nil {
+		return err
+	}
+	instance.db = db
+
+	return nil
+}
+
+func (instance *Database) Disconnect() error {
+	return instance.db.Close()
 }
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
