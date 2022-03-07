@@ -34,6 +34,7 @@ Bookstore - REST API application written with Go
 
 ## Configurations
 * `./configs/app.xml` contains application main params, like host, port, environment
+* `/.configs/database.xml` contains database configs, like host, name, lgoin, password
 
 ## API Documentation
 * `https://documenter.getpostman.com/view/11110995/UVkvLDg9`
